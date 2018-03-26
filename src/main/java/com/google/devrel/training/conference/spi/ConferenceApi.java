@@ -2,21 +2,25 @@ package com.google.devrel.training.conference.spi;
 
 import static com.google.devrel.training.conference.service.OfyService.ofy;
 
+import com.google.api.server.spi.Constant;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiMethod.HttpMethod;
-<<<<<<< HEAD
-=======
 import javax.inject.Named;
 import javax.xml.bind.Unmarshaller.Listener;
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
+import com.googlecode.objectify.cmd.Query;
 
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.api.server.spi.response.ConflictException;
 import com.google.api.server.spi.response.ForbiddenException;
 import com.google.api.server.spi.response.NotFoundException;
 import com.google.api.server.spi.response.UnauthorizedException;
 import com.google.appengine.api.users.User;
 import com.google.devrel.training.conference.Constants;
+import com.google.devrel.training.conference.domain.Announcement;
 import com.google.devrel.training.conference.domain.Conference;
 import com.google.devrel.training.conference.domain.Profile;
 import com.google.devrel.training.conference.form.ConferenceForm;
@@ -24,25 +28,15 @@ import com.google.devrel.training.conference.form.ConferenceQueryForm;
 import com.google.devrel.training.conference.form.ProfileForm;
 import com.google.devrel.training.conference.form.ProfileForm.TeeShirtSize;
 import com.google.devrel.training.conference.service.OfyService;
-<<<<<<< HEAD
-=======
 import com.google.devrel.training.conference.spi.ConferenceApi.WrappedBoolean;
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Work;
 
 import java.util.ArrayList;
 import java.util.Collection;
-<<<<<<< HEAD
-import java.util.List;
-import com.googlecode.objectify.cmd.Query;
-
-import javax.inject.Named;
-=======
 import java.util.Iterator;
 import java.util.List;
 import com.googlecode.objectify.cmd.Query;
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 
 /**
  * Defines conference APIs.
@@ -50,6 +44,8 @@ import com.googlecode.objectify.cmd.Query;
 @Api(name = "conference", version = "v1", scopes = { Constants.EMAIL_SCOPE }, clientIds = { Constants.WEB_CLIENT_ID,
 		Constants.API_EXPLORER_CLIENT_ID }, description = "API for the Conference Central Backend application.")
 public class ConferenceApi {
+	//Queue queue = QueueFactory.getQueue("SendMail");
+
 
 	/*
 	 * Get the display name from the user's email. For example, if the email is
@@ -99,10 +95,7 @@ public class ConferenceApi {
 		// Set the displayName to the value sent by the ProfileForm, if sent
 		// otherwise set it to null
 		displayName = pf.getDisplayName();
-<<<<<<< HEAD
-=======
 		// TODO 2
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 		// Get the userId and mainEmail
 		mainEmail = u.getEmail();
 		userId = u.getUserId();
@@ -185,6 +178,8 @@ public class ConferenceApi {
 	@ApiMethod(name = "createConference", path = "conference", httpMethod = HttpMethod.POST)
 	public Conference createConference(final User user, final ConferenceForm conferenceForm)
 			throws UnauthorizedException {
+		Queue queue = QueueFactory.getQueue("email-queue");
+
 		if (user == null) {
 			throw new UnauthorizedException("Authorization required");
 		}
@@ -219,19 +214,11 @@ public class ConferenceApi {
 
 		// TODO (Lesson 4)
 		// Save Conference and Profile Entities
-<<<<<<< HEAD
-
-=======
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 		ofy().save().entities(profile, conference).now();
 
 		return conference;
 	}
 
-<<<<<<< HEAD
-	//
-=======
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 	@ApiMethod(name = "queryConferences", path = "queryConferences", httpMethod = HttpMethod.POST)
 	public List queryConferences(ConferenceQueryForm conferenceQueryForm) {
 		Iterable<Conference> conferenceIterable = conferenceQueryForm.getQuery();
@@ -247,11 +234,6 @@ public class ConferenceApi {
 		return result;
 	}
 
-<<<<<<< HEAD
-	//
-
-=======
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 	/**
 	 * Returns a Conference object with the given conferenceId.
 	 *
@@ -272,41 +254,16 @@ public class ConferenceApi {
 		return conference;
 	}
 
-<<<<<<< HEAD
-	//
-	/**
-	 * Returns a Conference object with the given conferenceId.
-	 *
-	 * @param websafeConferenceKey
-	 *            The String representation of the Conference Key.
-	 * @return a Conference object with the given conferenceId.
-	 * @throws UnauthorizedException
-	 * @throws NotFoundException
-	 *             when there is no Conference with the given conferenceId.
-	 */
-
-=======
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 	public List<Conference> getConferenceCreated(User user) throws UnauthorizedException {
 		if (user == null) {
 			throw new UnauthorizedException("Authorization required");
 		}
-<<<<<<< HEAD
-		Query<Conference> query = ofy().load().type(Conference.class).ancestor(user.getUserId());
-
-		return query.list();
-	}
-
-	//
-
-=======
 
 		Query<Conference> query = ofy().load().type(Conference.class)
 				.ancestor(Key.create(Profile.class, user.getUserId()));
 		return query.list();
 	}
 
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 	@ApiMethod(name = "getConferencesFiltered", path = "getConferencesFiltered", httpMethod = HttpMethod.POST)
 	public List<Conference> getConferencesFiltered() {
 		Query query = ofy().load().type(Conference.class);
@@ -317,11 +274,6 @@ public class ConferenceApi {
 		return query.list();
 	}
 
-<<<<<<< HEAD
-	///
-
-=======
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 	/**
 	 * Just a wrapper for Boolean. We need this wrapped Boolean because
 	 * endpoints functions must return an object instance, they can't return a
@@ -380,10 +332,7 @@ public class ConferenceApi {
 
 		// TODO
 		// Start transaction
-<<<<<<< HEAD
-=======
 
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 		WrappedBoolean result = ofy().transact(new Work<WrappedBoolean>() {
 			public WrappedBoolean run() {
 				// do stuff
@@ -430,18 +379,9 @@ public class ConferenceApi {
 						// Decrease the conference's seatsAvailable
 						// You can use the bookSeats() method on Conference
 						conference.bookSeats(conference.getSeatsAvailable() - 1);
-<<<<<<< HEAD
-
 						// TODO
 						// Save the Conference and Profile entities
 
-						ofy().save().entities(profile, conference).now();
-
-=======
-						// TODO
-						// Save the Conference and Profile entities
-
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 						// We are booked!
 						return new WrappedBoolean(true, "Registration successful");
 					}
@@ -450,13 +390,7 @@ public class ConferenceApi {
 					return new WrappedBoolean(false, "Unknown exception");
 				}
 			}
-<<<<<<< HEAD
-
 		});
-
-=======
-		});
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 		// if result is false
 		if (!result.getResult()) {
 			if (result.getReason().contains("No Conference found with key")) {
@@ -492,47 +426,25 @@ public class ConferenceApi {
 		}
 		// TODO
 		// Get the Profile entity for the user
-<<<<<<< HEAD
-
-		Profile profile = getProfile(user); // Change this;
-		if (profile == null) {
-			throw new NotFoundException("Profile doesn't exist.");
-		}
-		// 02.03
-=======
 		Profile profile = getProfile(user);
 		if (profile == null) {
 			throw new NotFoundException("Profile doesn't exist.");
 		}
 
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 		// TODO
 		// Get the value of the profile's conferenceKeysToAttend property
 		List<String> keyStringsToAttend = profile.getConferenceKeysToAttend(); // change
 																				// this
-<<<<<<< HEAD
-		Query<Conference> query = ofy().load().type(Conference.class).ancestor(keyStringsToAttend);
-=======
 
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 		// TODO
 		// Iterate over keyStringsToAttend,
 		// and return a Collection of the
 		// Conference entities that the user has registered to atend
-<<<<<<< HEAD
-
-		return query.list(); // change this
-	}
-
-	// 02.03
-
-=======
 		Query<Conference> query = ofy().load().type(Conference.class).ancestor(keyStringsToAttend);
 
 		return query.list();
 	}
 
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 	public List<Conference> filterPlayground() {
 		Query<Conference> query = ofy().load().type(Conference.class).order("name");
 
@@ -559,11 +471,6 @@ public class ConferenceApi {
 		return query.list();
 	}
 
-<<<<<<< HEAD
-	// 02.03
-
-=======
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 	/**
 	 * Unregister from the specified Conference. *
 	 * 
@@ -583,23 +490,22 @@ public class ConferenceApi {
 	public WrappedBoolean unregisterFromConference(final User user,
 			@Named("websafeConferenceKey") final String websafeConferenceKey)
 			throws UnauthorizedException, NotFoundException, ForbiddenException, ConflictException {
-<<<<<<< HEAD
-		if (user == null) {
-			throw new UnauthorizedException("Authorization required");
-
-		}
-
-		Profile profile = getProfile(user);
-		profile.unregisterFromConference(websafeConferenceKey);
-
-		return new WrappedBoolean(true, "User was deleted");
-
-=======
 		if(user == null)  throw new UnauthorizedException("Authorization required");
 		Profile profile = getProfile(user);
 		profile.unregisterFromConference(websafeConferenceKey);
 		return new WrappedBoolean(true, "User was deleted");
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 	}
+
+	@ApiMethod(
+		    name="getAnnouncement",
+		    path = "announcement",
+		    httpMethod = HttpMethod.GET
+		    )
+		    public Announcement getAnnouncement(){
+		    //TODO GET announcement from memcache by key and if it exist return it
+		    MemcacheService memcacheService = MemcacheServiceFactory.getMemcacheService();
+   
+	  		    return    (Announcement) memcacheService.get(Constants.MEMCACHE_ANNOUNCEMENTS_KEY);
+		    }
 
 }

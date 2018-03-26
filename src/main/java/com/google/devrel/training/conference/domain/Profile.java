@@ -5,25 +5,18 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.google.devrel.training.conference.form.ProfileForm.TeeShirtSize;
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.common.collect.ImmutableList;
-
 
 @Entity
+@Cache 
 public class Profile {
 	String displayName;
 	String mainEmail;
 	TeeShirtSize teeShirtSize;
-<<<<<<< HEAD
-    private List<String> conferenceKeysToAttend = new ArrayList<>(0);
-=======
 	private List<String> conferenceKeysToAttend = new ArrayList<>(0);
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 	// TODO indicate that the userId is to be used in the Entity's key
 	@Id String userId;
     
@@ -67,53 +60,6 @@ public class Profile {
      */
     private Profile() {}
 
-<<<<<<< HEAD
-    
-    
-    
-    //02.03
-    
-    
- // List of conferences the user has registered to attend
-
-
-    public List<String> getConferenceKeysToAttend() {
-            return ImmutableList.copyOf(conferenceKeysToAttend);
-        }
-        
-        public void addToConferenceKeysToAttend(String conferenceKey) {
-            conferenceKeysToAttend.add(conferenceKey);
-        }
-        
-        /**
-         * Remove the conferenceId from conferenceIdsToAttend.
-         *
-         * @param conferenceKey a websafe String representation of the Conference Key.
-         */
-        public void unregisterFromConference(String conferenceKey) {
-            if (conferenceKeysToAttend.contains(conferenceKey)) {
-                conferenceKeysToAttend.remove(conferenceKey);
-            } else {
-                throw new IllegalArgumentException("Invalid conferenceKey: " + conferenceKey);
-            }
-        }
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-=======
     public List<String> getConferenceKeysToAttend() {
         return ImmutableList.copyOf(conferenceKeysToAttend);
     }
@@ -137,5 +83,4 @@ public class Profile {
 
     
     
->>>>>>> dcfaecc6ded9eed507a225c223694ed32f2cc26e
 }
