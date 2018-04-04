@@ -233,7 +233,20 @@ public class ConferenceApi {
 		ofy().load().keys(organizersKeyList);
 		return result;
 	}
+	@ApiMethod(name = "getConferencesCreated", path = "getConferencesCreated", httpMethod = HttpMethod.POST)
+	public List getConferencesCreated(User u) {
+		
+		
+		// To avoid separate datastore gets for each Conference, pre-fetch the
+		// Profiles.
+		Key<Profile> profileKey = Key.create(Profile.class,u.getUserId());
+		Query query = ofy().load().type(Conference.class).ancestor(profileKey);
+		List<Conference> results = query.list();
 
+		return results;
+	}
+
+	
 	/**
 	 * Returns a Conference object with the given conferenceId.
 	 *
@@ -440,9 +453,22 @@ public class ConferenceApi {
 		// Iterate over keyStringsToAttend,
 		// and return a Collection of the
 		// Conference entities that the user has registered to atend
-		Query<Conference> query = ofy().load().type(Conference.class).ancestor(keyStringsToAttend);
 
-		return query.list();
+		List<Conference> result = new ArrayList<>(0);
+		List<Key<Conference>>attendKeyList = new ArrayList<>(0);
+		for (String key : keyStringsToAttend) {
+			Key<Conference> k =  Key.create(key);
+			Conference entity = ofy().load().key(k).now();
+			attendKeyList.add(k);
+			result.add(entity);
+		}
+		// To avoid separate datastore gets for each Conference, pre-fetch the
+		// Profiles.
+		ofy().load().keys(attendKeyList);
+		
+	
+
+		return result;
 	}
 
 	public List<Conference> filterPlayground() {
